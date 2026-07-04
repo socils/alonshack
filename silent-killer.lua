@@ -1,173 +1,4 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AlonshackCore"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
-
-local Panel = Instance.new("Frame")
-Panel.Size = UDim2.new(0, 310, 0, 410)
-Panel.Position = UDim2.new(0.5, -155, -0.6, 0)
-Panel.BackgroundColor3 = Color3.fromRGB(10, 16, 16)
-Panel.BorderColor3 = Color3.fromRGB(0, 255, 150)
-Panel.BorderSizePixel = 2
-Panel.Active = true
-Panel.Draggable = true
-Panel.Parent = ScreenGui
-
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundColor3 = Color3.fromRGB(15, 25, 25)
-Title.BorderColor3 = Color3.fromRGB(0, 255, 150)
-Title.BorderSizePixel = 1
-Title.Text = "  💀 CORE SYSTEM v2.5"
-Title.TextColor3 = Color3.fromRGB(0, 255, 150)
-Title.Font = Enum.Font.RobotoMono
-Title.TextSize = 13
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Panel
-
-local Credits = Instance.new("TextLabel")
-Credits.Size = UDim2.new(0, 120, 1, 0)
-Credits.Position = UDim2.new(1, -125, 0, 0)
-Credits.BackgroundTransparency = 1
-Credits.Text = "by ALONSHACK"
-Credits.TextColor3 = Color3.fromRGB(0, 255, 255)
-Credits.Font = Enum.Font.RobotoMono
-Credits.TextSize = 11
-Credits.TextXAlignment = Enum.TextXAlignment.Right
-Credits.Parent = Title
-
-local BtnMinimizar = Instance.new("TextButton")
-BtnMinimizar.Size = UDim2.new(0, 25, 0, 25)
-BtnMinimizar.Position = UDim2.new(1, -28, 0, 2)
-BtnMinimizar.BackgroundTransparency = 1
-BtnMinimizar.Text = "[-]"
-BtnMinimizar.TextColor3 = Color3.fromRGB(0, 255, 150)
-BtnMinimizar.Font = Enum.Font.RobotoMono
-BtnMinimizar.TextSize = 14
-BtnMinimizar.Parent = Panel
-
-local ButtonContainer = Instance.new("ScrollingFrame")
-ButtonContainer.Size = UDim2.new(1, 0, 1, -30)
-ButtonContainer.Position = UDim2.new(0, 0, 0, 30)
-ButtonContainer.BackgroundTransparency = 1
-ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 520)
-ButtonContainer.ScrollBarThickness = 4
-ButtonContainer.Parent = Panel
-
-local function CrearBoton(texto, pos, parent, color)
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0.9, 0, 0, 32)
-	btn.Position = pos
-	btn.BackgroundColor3 = Color3.fromRGB(15, 25, 25)
-	btn.BorderColor3 = color
-	btn.BorderSizePixel = 1
-	btn.Text = texto
-	btn.TextColor3 = color
-	btn.Font = Enum.Font.RobotoMono
-	btn.TextSize = 11
-	btn.Parent = parent
-	return btn
-end
-
-local BtnVision = CrearBoton("SISTEMA: APAGADO", UDim2.new(0.05, 0, 0.02, 0), ButtonContainer, Color3.fromRGB(0, 255, 150))
-local BtnToggleFOV = CrearBoton("MOSTRAR FOV: SI", UDim2.new(0.05, 0, 0.10, 0), ButtonContainer, Color3.fromRGB(0, 200, 255))
-local BtnToggleDist = CrearBoton("LINEA DISTANCIA: SI (⚠️ LAG)", UDim2.new(0.05, 0, 0.18, 0), ButtonContainer, Color3.fromRGB(255, 150, 0))
-local BtnToggleRadar = CrearBoton("ALERTA PROXIMIDAD: SI", UDim2.new(0.05, 0, 0.26, 0), ButtonContainer, Color3.fromRGB(255, 0, 255))
-local BtnToggleAuto = CrearBoton("[BETA] AUTO-ATAQUE: NO", UDim2.new(0.05, 0, 0.34, 0), ButtonContainer, Color3.fromRGB(255, 50, 50))
-local BtnColorChg = CrearBoton("CAMBIAR COLOR VISUALIZADOR", UDim2.new(0.05, 0, 0.42, 0), ButtonContainer, Color3.fromRGB(255, 255, 255))
-local BtnDetalles = CrearBoton("[+] MOSTRAR MANUAL DETALLADO", UDim2.new(0.05, 0, 0.50, 0), ButtonContainer, Color3.fromRGB(0, 255, 255))
-
-local InfoBox = Instance.new("TextLabel")
-InfoBox.Size = UDim2.new(0.9, 0, 0, 0)
-InfoBox.Position = UDim2.new(0.05, 0, 0.58, 0)
-InfoBox.BackgroundColor3 = Color3.fromRGB(12, 20, 20)
-InfoBox.BorderColor3 = Color3.fromRGB(0, 255, 150)
-InfoBox.Text = " CONFIGURACIÓN Y OPERACIONES DEL SISTEMA:\n\n * SISTEMA PRINCIPAL:\n   Controla el escaneo base de entornos y mapeo de hilos.\n\n * VECTOR FOV:\n   Calcula de forma predictiva los vectores de visión frontal del objetivo basándose en su orientación craneal.\n\n * PROTOCOLO DISTANCIA (⚠️ ALTO LAG):\n   Traza de forma síncrona puentes de studs tridimensionales. Desactívelo si nota pérdida severa de fotogramas.\n\n * SENSOR BACKUP PROXIMIDAD:\n   Mapea un anillo dinámico de 25 studs. Si falla el rastreo por CFrame del jugador, conmuta inmediatamente a rastreo de silueta activa en la jerarquía del workspace para mantener el bucle de alerta.\n\n * ENFOQUE DE ATAQUE AUTOMÁTICO:\n   Fuerza el alineamiento angular del CFrame con el objetivo y simula la pulsación del ítem primario o activo del inventario."
-InfoBox.TextColor3 = Color3.fromRGB(200, 255, 220)
-InfoBox.Font = Enum.Font.RobotoMono
-InfoBox.TextSize = 9
-InfoBox.TextXAlignment = Enum.TextXAlignment.Left
-InfoBox.TextYAlignment = Enum.TextYAlignment.Top
-InfoBox.ClipsDescendants = true
-InfoBox.Visible = false
-InfoBox.Parent = ButtonContainer
-
-TweenService:Create(Panel, TweenInfo.new(0.9, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -155, 0.5, -205)}):Play()
-
-local PanelMinimizado = false
-BtnMinimizar.MouseButton1Click:Connect(function()
-	PanelMinimizado = not PanelMinimizado
-	if PanelMinimizado then
-		ButtonContainer.Visible = false
-		TweenService:Create(Panel, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 310, 0, 30)}):Play()
-		BtnMinimizar.Text = "[+]"
-	else
-		TweenService:Create(Panel, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 310, 0, 410)}):Play()
-		task.wait(0.15)
-		ButtonContainer.Visible = true
-		BtnMinimizar.Text = "[-]"
-	end
-end)
-
-local ManualAbierto = false
-BtnDetalles.MouseButton1Click:Connect(function()
-	ManualAbierto = not ManualAbierto
-	if ManualAbierto then
-		BtnDetalles.Text = "[-] OCULTAR MANUAL DETALLADO"
-		InfoBox.Visible = true
-		TweenService:Create(InfoBox, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0.9, 0, 0, 260)}):Play()
-		ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 780)
-	else
-		BtnDetalles.Text = "[+] MOSTRAR MANUAL DETALLADO"
-		local t = TweenService:Create(InfoBox, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0.9, 0, 0, 0)})
-		t:Play()
-		t.Completed:Connect(function()
-			if not ManualAbierto then InfoBox.Visible = false end
-		end)
-		ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 520)
-	end
-end)
-
-local EscanerActivo = false
-local MostrarFOVActivo = true
-local MostrarDistActiva = true
-local AlertaRadarActiva = true
-local AutoAtaqueActivo = false
-
-local ColoresDisponibles = {
-	Color3.fromRGB(0, 255, 150),
-	Color3.fromRGB(0, 255, 255),
-	Color3.fromRGB(255, 0, 100),
-	Color3.fromRGB(255, 200, 0)
-}
-local ColorActualIndex = 1
-local ColorVisualizador = ColoresDisponibles[ColorActualIndex]
-
-BtnColorChg.MouseButton1Click:Connect(function()
-	ColorActualIndex = ColorActualIndex + 1
-	if ColorActualIndex > #ColoresDisponibles then ColorActualIndex = 1 end
-	ColorVisualizador = ColoresDisponibles[ColorActualIndex]
-	BtnColorChg.TextColor3 = ColorVisualizador
-	BtnColorChg.BorderColor3 = ColorVisualizador
-end)
-
-BtnToggleFOV.MouseButton1Click:Connect(function()
-	MostrarFOVActivo = not MostrarFOVActivo
-	BtnToggleFOV.Text = "MOSTRAR FOV: " .. (MostrarFOVActivo and "SI" or "NO")
-	BtnToggleFOV.TextColor3 = MostrarFOVActivo and Color3.fromRGB(0, 200, 255) or Color3.fromRGB(100, 100, 100)
-end)
-
-BtnToggleDist.MouseButton1Click:Connect(function()
-	MostrarDistActiva = not MostrarDistActiva
-	BtnToggleDist.Text = "LINEA DISTANCIA: " .. (MostrarDistActiva and "SI (⚠️ LAG)" or "NO")
-	BtnToggleDist.TextColor3 = MostrarDistActiva and Color3.fromRGB(255, 150, 0) or Color3.fromRGB(100, 100, 100)
+3.fromRGB(255, 150, 0) or Color3.fromRGB(100, 100, 100)
 end)
 
 BtnToggleRadar.MouseButton1Click:Connect(function()
@@ -471,3 +302,491 @@ BtnVision.MouseButton1Click:Connect(function()
 		LimpiarEscaneo()
 	end
 end)
+-- =============================================================================
+-- ALONSHACK // SILENT KILLER HUD v4.0 PRO (FULL PRODUCTION CODE)
+-- =============================================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- [ESTADOS Y CONFIGURACIÓN CENTRAL]
+local Settings = {
+    EscanerActivo = false,
+    TargetMode = "OFF", -- "OFF", "FOLLOW" (Mirar y Perseguir), "COMBAT" (Mirar y Atacar a 4 studs)
+    DashDist = 8,
+    UltimoObjetivoNotificado = "",
+    Colors = {
+        Hitbox = Color3.fromRGB(0, 255, 150),
+        Distancia = Color3.fromRGB(255, 150, 0),
+        Etiquetas = Color3.fromRGB(255, 255, 255)
+    }
+}
+
+-- [CONTENEDOR PRINCIPAL DE LA INTERFAZ]
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AlonshackCore_v4"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- [SISTEMA DE NOTIFICACIONES VISUALES]
+local function EnviarNotificacion(titulo, mensaje, colorBorde)
+    colorBorde = colorBorde or Color3.fromRGB(0, 255, 150)
+    
+    local FrameNotif = Instance.new("Frame")
+    FrameNotif.Size = UDim2.new(0, 280, 0, 65)
+    FrameNotif.Position = UDim2.new(1, 20, 0.85, 0) -- Inicia fuera de la pantalla (Derecha)
+    FrameNotif.BackgroundColor3 = Color3.fromRGB(10, 12, 12)
+    FrameNotif.BorderColor3 = colorBorde
+    FrameNotif.BorderSizePixel = 2
+    FrameNotif.Parent = ScreenGui
+
+    local CornerN = Instance.new("UICorner")
+    CornerN.CornerRadius = UDim.new(0, 6)
+    CornerN.Parent = FrameNotif
+
+    local TextoNotif = Instance.new("TextLabel")
+    TextoNotif.Size = UDim2.new(0.9, 0, 0.9, 0)
+    TextoNotif.Position = UDim2.new(0.05, 0, 0.05, 0)
+    TextoNotif.BackgroundTransparency = 1
+    TextoNotif.Text = "[" .. titulo .. "]\n" .. mensaje
+    TextoNotif.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextoNotif.Font = Enum.Font.RobotoMono
+    TextoNotif.TextSize = 12
+    TextoNotif.TextXAlignment = Enum.TextXAlignment.Left
+    TextoNotif.Parent = FrameNotif
+
+    -- Animación de entrada
+    TweenService:Create(FrameNotif, TweenInfo.new(0.4, Enum.EasingStyle.QuadOut), {Position = UDim2.new(1, -300, 0.85, 0)}):Play()
+    
+    task.spawn(function()
+        task.wait(3.5)
+        -- Animación de salida
+        local tOut = TweenService:Create(FrameNotif, TweenInfo.new(0.4, Enum.EasingStyle.QuadIn), {Position = UDim2.new(1, 20, 0.85, 0)})
+        tOut:Play()
+        tOut.Completed:Connect(function()
+            FrameNotif:Destroy()
+        end)
+    end)
+end
+
+-- [BOTÓN DE MINIMIZADO ESTILIZADO "A"]
+-- Corregido: Se posiciona en el centro izquierdo de la pantalla para evitar colisiones con el header/créditos
+local MiniBtn = Instance.new("TextButton")
+MiniBtn.Size = UDim2.new(0, 55, 0, 55)
+MiniBtn.Position = UDim2.new(0.02, 0, 0.45, 0) 
+MiniBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
+MiniBtn.BorderColor3 = Color3.fromRGB(0, 255, 150)
+MiniBtn.BorderSizePixel = 2
+MiniBtn.Text = "A"
+MiniBtn.TextColor3 = Color3.fromRGB(0, 255, 150)
+MiniBtn.Font = Enum.Font.SpecialElite
+MiniBtn.TextSize = 28
+MiniBtn.Visible = false
+MiniBtn.Parent = ScreenGui
+
+local MiniCorner = Instance.new("UICorner")
+MiniCorner.CornerRadius = UDim.new(0, 10)
+MiniCorner.Parent = MiniBtn
+
+-- [BOTÓN FLOTANTE: DASH (ESQUIVE)]
+local DashBtn = Instance.new("TextButton")
+DashBtn.Size = UDim2.new(0, 75, 0, 75)
+DashBtn.Position = UDim2.new(0.85, 0, 0.7, 0) -- Ubicación óptima para pulgar en móviles
+DashBtn.BackgroundColor3 = Color3.fromRGB(20, 25, 25)
+DashBtn.BorderColor3 = Color3.fromRGB(255, 50, 50)
+DashBtn.BorderSizePixel = 2
+DashBtn.Text = "DASH"
+DashBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+DashBtn.Font = Enum.Font.RobotoMono
+DashBtn.TextSize = 16
+DashBtn.Parent = ScreenGui
+
+local DashCorner = Instance.new("UICorner")
+DashCorner.CornerRadius = UDim.new(1, 0) -- Botón circular estilo nativo móvil
+DashCorner.Parent = DashBtn
+
+-- [INTERFAZ PRINCIPAL (DASHBOARD)]
+local MainDashboard = Instance.new("Frame")
+MainDashboard.Size = UDim2.new(0.94, 0, 0.9, 0)
+MainDashboard.Position = UDim2.new(0.03, 0, 0.05, 0)
+MainDashboard.BackgroundColor3 = Color3.fromRGB(8, 10, 10)
+MainDashboard.BackgroundTransparency = 0.1
+MainDashboard.BorderColor3 = Color3.fromRGB(0, 255, 150)
+MainDashboard.BorderSizePixel = 2
+MainDashboard.Parent = ScreenGui
+
+local DashCornerMain = Instance.new("UICorner")
+DashCornerMain.CornerRadius = UDim.new(0, 12)
+DashCornerMain.Parent = MainDashboard
+
+-- Encabezado de la interfaz
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 45)
+Header.BackgroundColor3 = Color3.fromRGB(14, 18, 18)
+Header.BorderSizePixel = 0
+Header.Parent = MainDashboard
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0.6, 0, 1, 0)
+Title.Position = UDim2.new(0.02, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "ALONSHACK V4 // CONTROL DE EJECUCIÓN"
+Title.TextColor3 = Color3.fromRGB(0, 255, 150)
+Title.Font = Enum.Font.RobotoMono
+Title.TextSize = 16
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Header
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 45, 0, 45)
+CloseBtn.Position = UDim2.new(1, -50, 0, 0)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
+CloseBtn.Font = Enum.Font.RobotoMono
+CloseBtn.TextSize = 20
+CloseBtn.Parent = Header
+
+-- Créditos fijos en la zona inferior
+local CreditsLabel = Instance.new("TextLabel")
+CreditsLabel.Size = UDim2.new(1, 0, 0, 25)
+CreditsLabel.Position = UDim2.new(0, 0, 1, -25)
+CreditsLabel.BackgroundColor3 = Color3.fromRGB(12, 14, 14)
+CreditsLabel.Text = "DEVELOPED BY ALONIXZ-GROUP // DESIGN SYSTEM CORE"
+CreditsLabel.TextColor3 = Color3.fromRGB(100, 120, 120)
+CreditsLabel.Font = Enum.Font.Code
+CreditsLabel.TextSize = 10
+CreditsLabel.Parent = MainDashboard
+
+-- Paneles contenedores (Grid de Dos Columnas)
+local LeftContainer = Instance.new("ScrollingFrame")
+LeftContainer.Size = UDim2.new(0.48, 0, 0.8, -10)
+LeftContainer.Position = UDim2.new(0.01, 0, 0.12, 0)
+LeftContainer.BackgroundTransparency = 1
+LeftContainer.CanvasSize = UDim2.new(0, 0, 0, 450)
+LeftContainer.ScrollBarThickness = 4
+LeftContainer.Parent = MainDashboard
+
+local RightContainer = Instance.new("Frame")
+RightContainer.Size = UDim2.new(0.48, 0, 0.8, -10)
+RightContainer.Position = UDim2.new(0.51, 0, 0.12, 0)
+RightContainer.BackgroundColor3 = Color3.fromRGB(12, 15, 15)
+RightContainer.BorderColor3 = Color3.fromRGB(0, 255, 150)
+RightContainer.Parent = MainDashboard
+
+local DiagnosticText = Instance.new("TextLabel")
+DiagnosticText.Size = UDim2.new(0.94, 0, 0.94, 0)
+DiagnosticText.Position = UDim2.new(0.03, 0, 0.03, 0)
+DiagnosticText.BackgroundTransparency = 1
+DiagnosticText.Text = "ESTADO DE LOS MÓDULOS:\n\n" ..
+    "[-] AUTOMÁTICO DE REFRESCADO LABELS: ACTIVO (1 MIN)\n" ..
+    "[-] RANGO DE ESCANEO DE ENTIDADES: ILIMITADO\n" ..
+    "[-] DISTANCIA DE COMBATE EXIGIDA: 4 STUDS\n" ..
+    "[-] VECTOR LOCK DE MIRADA: ENLAZADO\n\n" ..
+    "Sugerencia: Abre la paleta de colores interna para personalizar el contraste de las hitboxes y etiquetas sobre el entorno."
+DiagnosticText.TextColor3 = Color3.fromRGB(0, 200, 255)
+DiagnosticText.Font = Enum.Font.RobotoMono
+DiagnosticText.TextSize = 11
+DiagnosticText.TextXAlignment = Enum.TextXAlignment.Left
+DiagnosticText.TextYAlignment = Enum.TextYAlignment.Top
+DiagnosticText.TextWrapped = true
+DiagnosticText.Parent = RightContainer
+
+-- [SUBPANEL INTERNO EXTRA: PALETA DE COLORES INDEPENDIENTES]
+local ColorPanel = Instance.new("Frame")
+ColorPanel.Size = UDim2.new(0, 260, 0, 220)
+ColorPanel.Position = UDim2.new(0.5, -130, 0.5, -110)
+ColorPanel.BackgroundColor3 = Color3.fromRGB(16, 20, 20)
+ColorPanel.BorderColor3 = Color3.fromRGB(0, 255, 150)
+ColorPanel.BorderSizePixel = 2
+ColorPanel.Visible = false
+ColorPanel.ZIndex = 15
+ColorPanel.Parent = MainDashboard
+
+local ColorPanelTitle = Instance.new("TextLabel")
+ColorPanelTitle.Size = UDim2.new(1, 0, 0, 35)
+ColorPanelTitle.BackgroundColor3 = Color3.fromRGB(22, 28, 28)
+ColorPanelTitle.Text = " SELECCIÓN DE COLORES"
+ColorPanelTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ColorPanelTitle.Font = Enum.Font.RobotoMono
+ColorPanelTitle.TextSize = 12
+ColorPanelTitle.ZIndex = 15
+ColorPanelTitle.Parent = ColorPanel
+
+local ColorPanelClose = Instance.new("TextButton")
+ColorPanelClose.Size = UDim2.new(0, 35, 0, 35)
+ColorPanelClose.Position = UDim2.new(1, -35, 0, 0)
+ColorPanelClose.BackgroundTransparency = 1
+ColorPanelClose.Text = "✕"
+ColorPanelClose.TextColor3 = Color3.fromRGB(255, 100, 100)
+ColorPanelClose.Font = Enum.Font.RobotoMono
+ColorPanelClose.TextSize = 14
+ColorPanelClose.ZIndex = 16
+ColorPanelClose.Parent = ColorPanel
+
+-- Función auxiliar para inyectar selectores dentro del Subpanel de Colores
+local function CrearFilaColor(texto, yPos, callback)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0.4, 0, 0, 30)
+    lbl.Position = UDim2.new(0.05, 0, 0, yPos)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = texto
+    lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+    lbl.Font = Enum.Font.RobotoMono
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 15
+    lbl.Parent = ColorPanel
+
+    local btnVerde = Instance.new("TextButton")
+    btnVerde.Size = UDim2.new(0, 30, 0, 25)
+    btnVerde.Position = UDim2.new(0.5, 0, 0, yPos)
+    btnVerde.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+    btnVerde.Text = ""
+    btnVerde.ZIndex = 15
+    btnVerde.Parent = ColorPanel
+
+    local btnAzul = Instance.new("TextButton")
+    btnAzul.Size = UDim2.new(0, 30, 0, 25)
+    btnAzul.Position = UDim2.new(0.5, 35, 0, yPos)
+    btnAzul.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+    btnAzul.Text = ""
+    btnAzul.ZIndex = 15
+    btnAzul.Parent = ColorPanel
+
+    local btnRojo = Instance.new("TextButton")
+    btnRojo.Size = UDim2.new(0, 30, 0, 25)
+    btnRojo.Position = UDim2.new(0.5, 70, 0, yPos)
+    btnRojo.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    btnRojo.Text = ""
+    btnRojo.ZIndex = 15
+    btnRojo.Parent = ColorPanel
+
+    btnVerde.MouseButton1Click:Connect(function() callback(Color3.fromRGB(0, 255, 150)) end)
+    btnAzul.MouseButton1Click:Connect(function() callback(Color3.fromRGB(0, 200, 255)) end)
+    btnRojo.MouseButton1Click:Connect(function() callback(Color3.fromRGB(255, 50, 50)) end)
+end
+
+CrearFilaColor("HITBOXES:", 50, function(c) Settings.Colors.Hitbox = c EnviarNotificacion("COLOR", "Hitboxes actualizadas.", c) end)
+CrearFilaColor("DISTANCIA:", 95, function(c) Settings.Colors.Distancia = c EnviarNotificacion("COLOR", "Líneas de distancia actualizadas.", c) end)
+CrearFilaColor("ETIQUETAS:", 140, function(c) Settings.Colors.Etiquetas = c EnviarNotificacion("COLOR", "Diseño de etiquetas actualizado.", c) end)
+
+ColorPanelClose.MouseButton1Click:Connect(function() ColorPanel.Visible = false end)
+
+-- [GENERADOR DE BOTONES INTERACTIVOS (CSS ASINCRONO STYLE)]
+local function InsertarBotonMenu(texto, index, colorBorde)
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(0.96, 0, 0, 42)
+    Btn.Position = UDim2.new(0.02, 0, 0, (index - 1) * 50)
+    Btn.BackgroundColor3 = Color3.fromRGB(12, 16, 16)
+    Btn.BorderColor3 = colorBorde
+    Btn.BorderSizePixel = 1
+    Btn.Text = "  " .. texto
+    Btn.TextColor3 = colorBorde
+    Btn.Font = Enum.Font.RobotoMono
+    Btn.TextSize = 11
+    Btn.TextXAlignment = Enum.TextXAlignment.Left
+    Btn.Parent = LeftContainer
+
+    local CornerB = Instance.new("UICorner")
+    CornerB.CornerRadius = UDim.new(0, 4)
+    CornerB.Parent = Btn
+
+    Btn.MouseEnter:Connect(function()
+        TweenService:Create(Btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(18, 26, 26)}):Play()
+    end)
+    Btn.MouseLeave:Connect(function()
+        TweenService:Create(Btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(12, 16, 16)}):Play()
+    end)
+
+    return Btn
+end
+
+local BtnEscaner = InsertarBotonMenu("SISTEMA GENERAL: APAGADO", 1, Color3.fromRGB(0, 255, 150))
+local BtnModoAtaque = InsertarBotonMenu("MODO COMBATE/SEGUIMIENTO: OFF", 2, Color3.fromRGB(255, 200, 0))
+-- Nuevo: Abre el subpanel interno de configuración cromática
+local BtnColorConfig = InsertarBotonMenu("CONFIGURAR COLORES SECCIÓN", 3, Color3.fromRGB(255, 255, 255))
+
+-- [MANIPULACIÓN DE MINIMIZADO CON ANIMACIONES DE INTERFAZ]
+local MenuAbierto = true
+
+local function DesplegarHUD()
+    MiniBtn.Visible = false
+    MainDashboard.Visible = true
+    TweenService:Create(MainDashboard, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.03, 0, 0.05, 0)}):Play()
+    MenuAbierto = true
+end
+
+local function ColapsarHUD()
+    local Anim = TweenService:Create(MainDashboard, TweenInfo.new(0.4, Enum.EasingStyle.QuadIn), {Position = UDim2.new(0.03, 0, -1, 0)})
+    Anim:Play()
+    MenuAbierto = false
+    Anim.Completed:Connect(function()
+        if not MenuAbierto then
+            MainDashboard.Visible = false
+            MiniBtn.Visible = true
+        end
+    end)
+end
+
+CloseBtn.MouseButton1Click:Connect(ColapsarHUD)
+MiniBtn.MouseButton1Click:Connect(DesplegarHUD)
+BtnColorConfig.MouseButton1Click:Connect(function() ColorPanel.Visible = not ColorPanel.Visible end)
+
+-- Alternar el interruptor del escáner visual básico
+BtnEscaner.MouseButton1Click:Connect(function()
+    Settings.EscanerActivo = not Settings.EscanerActivo
+    if Settings.EscanerActivo then
+        BtnEscaner.Text = "  SISTEMA GENERAL: ENCENDIDO"
+        BtnEscaner.TextColor3 = Color3.fromRGB(10, 10, 10)
+        BtnEscaner.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+        EnviarNotificacion("CORE", "Rastreador de servidores inicializado.")
+    else
+        BtnEscaner.Text = "  SISTEMA GENERAL: APAGADO"
+        BtnEscaner.TextColor3 = Color3.fromRGB(0, 255, 150)
+        BtnEscaner.BackgroundColor3 = Color3.fromRGB(12, 16, 16)
+        EnviarNotificacion("CORE", "Rastreador en reposo.")
+    end
+end)
+
+-- Máquina de estados cíclica para los modos combinados de tracking/hit
+BtnModoAtaque.MouseButton1Click:Connect(function()
+    if Settings.TargetMode == "OFF" then
+        Settings.TargetMode = "FOLLOW"
+        BtnModoAtaque.Text = "  MODO COMBATE/SEGUIMIENTO: FOLLOW"
+        BtnModoAtaque.TextColor3 = Color3.fromRGB(0, 200, 255)
+        EnviarNotificacion("SISTEMA", "Modo Persecución y Enfoque de Mirada Activado.", Color3.fromRGB(0, 200, 255))
+    elseif Settings.TargetMode == "FOLLOW" then
+        Settings.TargetMode = "COMBAT"
+        BtnModoAtaque.Text = "  MODO COMBATE/SEGUIMIENTO: COMBAT"
+        BtnModoAtaque.TextColor3 = Color3.fromRGB(255, 50, 50)
+        EnviarNotificacion("SISTEMA", "Modo Autohit Corto (4 Studs) Activado.", Color3.fromRGB(255, 50, 50))
+    else
+        Settings.TargetMode = "OFF"
+        BtnModoAtaque.Text = "  MODO COMBATE/SEGUIMIENTO: OFF"
+        BtnModoAtaque.TextColor3 = Color3.fromRGB(255, 200, 0)
+        Settings.UltimoObjetivoNotificado = ""
+        EnviarNotificacion("SISTEMA", "Motores de combate desactivados.")
+    end
+end)
+
+-- [EJECUCIÓN FISICA DEL MECHANISM DASH (ESQUIVE)]
+local function EjecutarDash()
+    local Character = LocalPlayer.Character
+    local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+    if RootPart then
+        -- Mueve el CFrame limpiamente respetando la dirección de la cámara
+        RootPart.CFrame = RootPart.CFrame + (RootPart.CFrame.LookVector * Settings.DashDist)
+        EnviarNotificacion("MECÁNICA", "Dash ejecutado (" .. tostring(Settings.DashDist) .. " Studs)", Color3.fromRGB(255, 50, 50))
+    end
+end
+DashBtn.MouseButton1Click:Connect(EjecutarDash)
+
+-- [MÓDULO DE RENDERIZADO DE ALTA VISIBILIDAD PARA ENTORNO (ANTI-MEZCLA)]
+local function InyectarGraficosPersonaje(Char, Enm)
+    if not Char:FindFirstChild("AlonshackRenderCore") then
+        local CarpetaContenedora = Instance.new("Folder")
+        CarpetaContenedora.Name = "AlonshackRenderCore"
+        CarpetaContenedora.Parent = Char
+
+        local Head = Char:FindFirstChild("Head")
+        if Head then
+            -- Adornment estructural (Hitbox visible)
+            local CajaWireframe = Instance.new("BoxHandleAdornment")
+            CajaWireframe.Name = "HitboxVisualizer"
+            CajaWireframe.Size = Char:GetExtentsSize() or Vector3.new(2, 5, 2)
+            CajaWireframe.Color3 = Settings.Colors.Hitbox
+            CajaWireframe.AlwaysOnTop = true
+            CajaWireframe.Transparency = 0.4
+            CajaWireframe.ZIndex = 5
+            CajaWireframe.Adornee = Char:FindFirstChild("HumanoidRootPart") or Head
+            CajaWireframe.Parent = CarpetaContenedora
+
+            -- Etiqueta flotante de alta visibilidad (No se mezcla con el mapa gracias al stroke sólido)
+            local BGui = Instance.new("BillboardGui")
+            BGui.Name = "HighVisibilityTag"
+            BGui.Size = UDim2.new(0, 180, 0, 35)
+            BGui.AlwaysOnTop = true
+            BGui.StudsOffset = Vector3.new(0, 3.5, 0)
+            BGui.Adornee = Head
+
+            local TxtLabel = Instance.new("TextLabel")
+            TxtLabel.Size = UDim2.new(1, 0, 1, 0)
+            TxtLabel.BackgroundTransparency = 1
+            TxtLabel.Text = string.upper(Enm.Name)
+            TxtLabel.TextColor3 = Settings.Colors.Etiquetas
+            TxtLabel.Font = Enum.Font.Code
+            TxtLabel.TextSize = 13
+            TxtLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Contorno negro absoluto para romper camuflaje del mapa
+            TxtLabel.TextStrokeTransparency = 0 -- Opaco al 100%
+            TxtLabel.Parent = BGui
+
+            BGui.Parent = CarpetaContenedora
+        end
+    else
+        -- Actualización dinámica en tiempo real por si cambian colores desde el panel interno
+        local Carpeta = Char:FindFirstChild("AlonshackRenderCore")
+        if Carpeta then
+            local Box = Carpeta:FindFirstChild("HitboxVisualizer")
+            if Box then Box.Color3 = Settings.Colors.Hitbox end
+            
+            local Tag = Carpeta:FindFirstChildOfClass("BillboardGui")
+            if Tag and Tag:FindFirstChildOfClass("TextLabel") then
+                Tag:FindFirstChildOfClass("TextLabel").TextColor3 = Settings.Colors.Etiquetas
+            end
+        end
+    end
+end
+
+local function LimpiarGraficosServidor()
+    for _, Enm in ipairs(Players:GetPlayers()) do
+        if Enm.Character then
+            local Carpeta = Enm.Character:FindFirstChild("AlonshackRenderCore")
+            if Carpeta then Carpeta:Destroy() end
+        end
+    end
+end
+
+-- BUCLE DE REFRESCO SÍNCRONO MANDATORIO (Evita saturación de memoria y limpia desincronizaciones de tags)
+task.spawn(function()
+    while true do
+        task.wait(60)
+        if Settings.EscanerActivo then
+            LimpiarGraficosServidor()
+        end
+    end
+end)
+
+-- [SISTEMA LOGICO CENTRAL DE INTERACCIÓN CORTA/LARGA Y ENFOQUE]
+RunService.RenderStepped:Connect(function()
+    local MiCharacter = LocalPlayer.Character
+    local MiRoot = MiCharacter and MiCharacter:FindFirstChild("HumanoidRootPart")
+    local MiHumanoid = MiCharacter and MiCharacter:FindFirstChildOfClass("Humanoid")
+
+    if not Settings.EscanerActivo or not MiRoot then
+        LimpiarGraficosServidor()
+        return 
+    end
+
+    local ObjetivoActual = nil
+    local DistanciaRecord = 999999
+
+    -- Escaneo unificado de posiciones relativas
+    for _, Enemigo in ipairs(Players:GetPlayers()) do
+        if Enemigo ~= LocalPlayer and Enemigo.Character then
+            InyectarGraficosPersonaje(Enemigo.Character, Enemigo)
+
+            local SuRoot = Enemigo.Character:FindFirstChild("HumanoidRootPart")
+            if SuRoot then
+                local ModuloDistancia = (SuRoot.Position - MiRoot.Position).Magnitude
+                if ModuloDistancia < DistanciaRecord then
+                    DistanciaRecord = ModuloDistancia
+                    ObjetivoActual = SuRoot
+                end
+            end
+     
