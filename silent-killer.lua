@@ -1,307 +1,3 @@
-3.fromRGB(255, 150, 0) or Color3.fromRGB(100, 100, 100)
-end)
-
-BtnToggleRadar.MouseButton1Click:Connect(function()
-	AlertaRadarActiva = not AlertaRadarActiva
-	BtnToggleRadar.Text = "ALERTA PROXIMIDAD: " .. (AlertaRadarActiva and "SI" or "NO")
-	BtnToggleRadar.TextColor3 = AlertaRadarActiva and Color3.fromRGB(255, 0, 255) or Color3.fromRGB(100, 100, 100)
-end)
-
-BtnToggleAuto.MouseButton1Click:Connect(function()
-	AutoAtaqueActivo = not AutoAtaqueActivo
-	BtnToggleAuto.Text = "[BETA] AUTO-ATAQUE: " .. (AutoAtaqueActivo and "SI" or "NO")
-	BtnToggleAuto.TextColor3 = AutoAtaqueActivo and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(100, 100, 100)
-end)
-
-local function CrearNotificacion(msg)
-	local notif = Instance.new("TextLabel")
-	notif.Size = UDim2.new(0, 220, 0, 35)
-	notif.Position = UDim2.new(1, 20, 0.8, 0)
-	notif.BackgroundColor3 = Color3.fromRGB(15, 5, 5)
-	notif.BorderColor3 = Color3.fromRGB(255, 0, 50)
-	notif.BorderSizePixel = 1
-	notif.Text = "ALERT: " .. msg
-	notif.TextColor3 = Color3.fromRGB(255, 50, 50)
-	notif.Font = Enum.Font.RobotoMono
-	notif.TextSize = 10
-	notif.Parent = ScreenGui
-	TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(1, -240, 0.8, 0)}):Play()
-	task.wait(2.5)
-	if notif then
-		TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, 20, 0.8, 0)}):Play()
-		task.wait(0.4)
-		notif:Destroy()
-	end
-end
-
-local function CrearBloqueAvatar(parte, tamano, color, esCara)
-	local adornment = Instance.new("BoxHandleAdornment")
-	adornment.Name = "ClassicWireframe"
-	adornment.Size = tamano
-	adornment.Color3 = color
-	adornment.AlwaysOnTop = true
-	adornment.ZIndex = esCara and 12 or 10
-	adornment.Transparency = esCara and 0.1 or 0.35
-	adornment.Adornee = parte
-	adornment.Parent = parte
-	return adornment
-end
-
-local function CrearLineaFOV(parte, cfOffset, longitud)
-	local adornment = Instance.new("CylinderHandleAdornment")
-	adornment.Name = "ClassicFOVLine"
-	adornment.Radius = 0.04
-	adornment.Height = longitud
-	adornment.Color3 = Color3.fromRGB(0, 255, 255)
-	adornment.AlwaysOnTop = true
-	adornment.ZIndex = 9
-	adornment.Transparency = 0.5
-	adornment.CFrame = cfOffset * CFrame.new(0, 0, -longitud/2)
-	adornment.Adornee = parte
-	adornment.Parent = parte
-	return adornment
-end
-
-local function EscanearEnemigoPalitos(char, enemigo)
-	if not char:FindFirstChild("AlonixzClassicEsqueleto") then
-		local esqFolder = Instance.new("Folder")
-		esqFolder.Name = "AlonixzClassicEsqueleto"
-		esqFolder.Parent = char
-		
-		local faceColor = Color3.fromRGB(0, 255, 255)
-		
-		for _, part in ipairs(char:GetChildren()) do
-			if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-				if part.Name == "Head" then
-					CrearBloqueAvatar(part, Vector3.new(1.2, 1.2, 1.2), ColorVisualizador, false)
-					local cara = CrearBloqueAvatar(part, Vector3.new(1.25, 0.4, 0.4), faceColor, true)
-					cara.CFrame = CFrame.new(0, 0, -0.5)
-					
-					CrearLineaFOV(part, CFrame.Angles(0, math.rad(40), 0), 16)
-					CrearLineaFOV(part, CFrame.Angles(0, math.rad(-40), 0), 16)
-				elseif string.find(part.Name, "Torso") or part.Name == "UpperTorso" or part.Name == "LowerTorso" then
-					CrearBloqueAvatar(part, Vector3.new(2.1, 2.1, 1.1), ColorVisualizador, false)
-				elseif string.find(part.Name, "Arm") or string.find(part.Name, "Hand") then
-					CrearBloqueAvatar(part, Vector3.new(1.02, 2.02, 1.02), ColorVisualizador, false)
-				elseif string.find(part.Name, "Leg") or string.find(part.Name, "Foot") then
-					CrearBloqueAvatar(part, Vector3.new(1.02, 2.02, 1.02), ColorVisualizador, false)
-				end
-			end
-		end
-		
-		local head = char:FindFirstChild("Head")
-		if head then
-			local bGui = Instance.new("BillboardGui")
-			bGui.Name = "EtiquetaClasica"
-			bGui.Size = UDim2.new(0, 200, 0, 30)
-			bGui.AlwaysOnTop = true
-			bGui.MaxDistance = 500
-			bGui.StudsOffset = Vector3.new(0, 3.5, 0)
-			bGui.Adornee = head
-			
-			local Frame = Instance.new("Frame")
-			Frame.Size = UDim2.new(1, 0, 1, 0)
-			Frame.BackgroundTransparency = 1
-			Frame.Parent = bGui
-			
-			local TextLabel = Instance.new("TextLabel")
-			TextLabel.Size = UDim2.new(1, 0, 1, 0)
-			TextLabel.BackgroundTransparency = 1
-			TextLabel.Text = string.upper(enemigo.Name)
-			TextLabel.TextColor3 = ColorVisualizador
-			TextLabel.Font = Enum.Font.RobotoMono
-			TextLabel.TextSize = 11
-			TextLabel.Parent = Frame
-			
-			bGui.Parent = esqFolder
-		end
-	else
-		for _, item in ipairs(char.AlonixzClassicEsqueleto:GetDescendants()) do
-			if item:IsA("BoxHandleAdornment") and item.ZIndex == 10 then
-				item.Color3 = ColorVisualizador
-			elseif item:IsA("TextLabel") then
-				item.TextColor3 = ColorVisualizador
-			end
-		end
-	end
-	
-	local head = char:FindFirstChild("Head")
-	if head then
-		for _, item in ipairs(char.AlonixzClassicEsqueleto:GetDescendants()) do
-			if item.Name == "ClassicFOVLine" then
-				item.Transparency = MostrarFOVActivo and 0.5 or 1
-			end
-		end
-		
-		local lineaDistFolder = char.AlonixzClassicEsqueleto:FindFirstChild("LineaDistanciaFolder")
-		if not lineaDistFolder then
-			lineaDistFolder = Instance.new("Folder")
-			lineaDistFolder.Name = "LineaDistanciaFolder"
-			lineaDistFolder.Parent = char.AlonixzClassicEsqueleto
-		end
-		
-		lineaDistFolder:ClearAllChildren()
-		
-		if MostrarDistActiva and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-			local p1 = LocalPlayer.Character.HumanoidRootPart.Position
-			local p2 = head.Position
-			local ray = (p2 - p1)
-			local dist = math.floor(ray.Magnitude)
-			
-			local numPuntos = math.floor(dist / 3)
-			for i = 1, numPuntos do
-				local pos = p1 + (ray.Unit * (i * 3))
-				local pPart = Instance.new("Part")
-				pPart.Size = Vector3.new(0.2, 0.2, 0.2)
-				pPart.CFrame = CFrame.new(pos)
-				pPart.Anchored = true
-				pPart.CanCollide = false
-				pPart.Transparency = 1
-				pPart.Parent = lineaDistFolder
-				
-				local adorn = Instance.new("BoxHandleAdornment")
-				adorn.Size = Vector3.new(0.15, 0.15, 0.4)
-				adorn.Color3 = ColorVisualizador
-				adorn.AlwaysOnTop = true
-				adorn.Transparency = 0.3
-				adorn.ZIndex = 8
-				adorn.Adornee = pPart
-				adorn.CFrame = CFrame.lookAt(pos, p2)
-				adorn.Parent = pPart
-			end
-			
-			local bGuiD = Instance.new("BillboardGui")
-			bGuiD.Name = "TagDist"
-			bGuiD.Size = UDim2.new(0, 80, 0, 20)
-			bGuiD.AlwaysOnTop = true
-			
-			local lbl = Instance.new("TextLabel")
-			lbl.Size = UDim2.new(1, 0, 1, 0)
-			lbl.BackgroundTransparency = 1
-			lbl.Text = tostring(dist) .. " STUDS"
-			lbl.TextColor3 = ColorVisualizador
-			lbl.Font = Enum.Font.RobotoMono
-			lbl.TextSize = 10
-			lbl.Parent = bGuiD
-			
-			local pMid = Instance.new("Part")
-			pMid.Size = Vector3.new(0.1, 0.1, 0.1)
-			pMid.CFrame = CFrame.new(p1 + (ray / 2))
-			pMid.Anchored = true
-			pMid.CanCollide = false
-			pMid.Transparency = 1
-			pMid.Parent = lineaDistFolder
-			
-			bGuiD.Adornee = pMid
-			bGuiD.Parent = lineaDistFolder
-		end
-	end
-end
-
-local function LimpiarEscaneo()
-	for _, enemigo in ipairs(Players:GetPlayers()) do
-		if enemigo.Character then
-			local esq = enemigo.Character:FindFirstChild("AlonixzClassicEsqueleto")
-			if esq then esq:Destroy() end
-		end
-	end
-end
-
-local UltimoAviso = 0
-RunService.RenderStepped:Connect(function()
-	pcall(function()
-		local myChar = LocalPlayer.Character
-		if myChar then
-			for _, v in ipairs(myChar:GetDescendants()) do
-				if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-					v.CanCollide = false
-				end
-			end
-		end
-	end)
-
-	if EscanerActivo then
-		local objetivoCercano = nil
-		local distanciaMinima = 25
-		
-		pcall(function()
-			local miRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-			
-			for _, enemigo in ipairs(Players:GetPlayers()) do
-				if enemigo ~= LocalPlayer and enemigo.Character then
-					EscanearEnemigoPalitos(enemigo.Character, enemigo)
-					
-					local enemigoRoot = enemigo.Character:FindFirstChild("HumanoidRootPart")
-					
-					if not enemigoRoot then
-						local esq = enemigo.Character:FindFirstChild("AlonixzClassicEsqueleto")
-						if esq then
-							local box = esq:FindFirstChildOfClass("BoxHandleAdornment")
-							if box and box.Adornee then
-								enemigoRoot = box.Adornee
-							end
-						end
-					end
-					
-					if miRoot and enemigoRoot then
-						local dist = (enemigoRoot.Position - miRoot.Position).Magnitude
-						if dist < distanciaMinima then
-							distanciaMinima = dist
-							objetivoCercano = enemigoRoot
-							
-							if AlertaRadarActiva and (tick() - UltimoAviso > 5) then
-								UltimoAviso = tick()
-								task.spawn(CrearNotificacion, "SILUETA DETECTADA: " .. enemigo.Name:upper())
-							end
-						end
-					end
-				end
-			end
-			
-			if AutoAtaqueActivo and objetivoCercano and LocalPlayer.Character then
-				local miRoot2 = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-				if miRoot2 then
-					miRoot2.CFrame = CFrame.lookAt(miRoot2.Position, Vector3.new(objetivoCercano.Position.X, miRoot2.Position.Y, objectiveCercano.Position.Z))
-				end
-				
-				local t = LocalPlayer.Character:FindFirstChildOfClass("Tool")
-				if not t and LocalPlayer:FindFirstChild("Backpack") then
-					local firstItem = LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
-					if firstItem and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-						LocalPlayer.Character.Humanoid:EquipTool(firstItem)
-						t = firstItem
-					end
-				end
-				if t then t:Activate() end
-			end
-		end)
-	else
-		LimpiarEscaneo()
-	end
-end)
-
-task.spawn(function()
-	while true do
-		task.wait(60)
-		if EscanerActivo then
-			LimpiarEscaneo()
-		end
-	end
-end)
-
-BtnVision.MouseButton1Click:Connect(function()
-	EscanerActivo = not EscanerActivo
-	if EscanerActivo then
-		BtnVision.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
-		BtnVision.TextColor3 = Color3.fromRGB(10, 16, 16)
-		BtnVision.Text = "SISTEMA: ENCENDIDO"
-	else
-		BtnVision.BackgroundColor3 = Color3.fromRGB(15, 25, 25)
-		BtnVision.TextColor3 = Color3.fromRGB(0, 255, 150)
-		BtnVision.Text = "SISTEMA: APAGADO"
-		LimpiarEscaneo()
-	end
-end)
 -- =============================================================================
 -- ALONSHACK // SILENT KILLER HUD v4.0 PRO (FULL PRODUCTION CODE)
 -- =============================================================================
@@ -319,7 +15,7 @@ local Settings = {
     EscanerActivo = false,
     TargetMode = "OFF", -- "OFF", "FOLLOW" (Mirar y Perseguir), "COMBAT" (Mirar y Atacar a 4 studs)
     DashDist = 8,
-    UltimoObjetivoNotificado = "",
+    UltimoAviso = 0,
     Colors = {
         Hitbox = Color3.fromRGB(0, 255, 150),
         Distancia = Color3.fromRGB(255, 150, 0),
@@ -361,12 +57,12 @@ local function EnviarNotificacion(titulo, mensaje, colorBorde)
     TextoNotif.Parent = FrameNotif
 
     -- Animación de entrada
-    TweenService:Create(FrameNotif, TweenInfo.new(0.4, Enum.EasingStyle.QuadOut), {Position = UDim2.new(1, -300, 0.85, 0)}):Play()
+    TweenService:Create(FrameNotif, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(1, -300, 0.85, 0)}):Play()
     
     task.spawn(function()
         task.wait(3.5)
         -- Animación de salida
-        local tOut = TweenService:Create(FrameNotif, TweenInfo.new(0.4, Enum.EasingStyle.QuadIn), {Position = UDim2.new(1, 20, 0.85, 0)})
+        local tOut = TweenService:Create(FrameNotif, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, 20, 0.85, 0)})
         tOut:Play()
         tOut.Completed:Connect(function()
             FrameNotif:Destroy()
@@ -375,7 +71,6 @@ local function EnviarNotificacion(titulo, mensaje, colorBorde)
 end
 
 -- [BOTÓN DE MINIMIZADO ESTILIZADO "A"]
--- Corregido: Se posiciona en el centro izquierdo de la pantalla para evitar colisiones con el header/créditos
 local MiniBtn = Instance.new("TextButton")
 MiniBtn.Size = UDim2.new(0, 55, 0, 55)
 MiniBtn.Position = UDim2.new(0.02, 0, 0.45, 0) 
@@ -396,7 +91,7 @@ MiniCorner.Parent = MiniBtn
 -- [BOTÓN FLOTANTE: DASH (ESQUIVE)]
 local DashBtn = Instance.new("TextButton")
 DashBtn.Size = UDim2.new(0, 75, 0, 75)
-DashBtn.Position = UDim2.new(0.85, 0, 0.7, 0) -- Ubicación óptima para pulgar en móviles
+DashBtn.Position = UDim2.new(0.85, 0, 0.7, 0) 
 DashBtn.BackgroundColor3 = Color3.fromRGB(20, 25, 25)
 DashBtn.BorderColor3 = Color3.fromRGB(255, 50, 50)
 DashBtn.BorderSizePixel = 2
@@ -407,7 +102,7 @@ DashBtn.TextSize = 16
 DashBtn.Parent = ScreenGui
 
 local DashCorner = Instance.new("UICorner")
-DashCorner.CornerRadius = UDim.new(1, 0) -- Botón circular estilo nativo móvil
+DashCorner.CornerRadius = UDim.new(1, 0) 
 DashCorner.Parent = DashBtn
 
 -- [INTERFAZ PRINCIPAL (DASHBOARD)]
@@ -529,7 +224,6 @@ ColorPanelClose.TextSize = 14
 ColorPanelClose.ZIndex = 16
 ColorPanelClose.Parent = ColorPanel
 
--- Función auxiliar para inyectar selectores dentro del Subpanel de Colores
 local function CrearFilaColor(texto, yPos, callback)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(0.4, 0, 0, 30)
@@ -578,7 +272,7 @@ CrearFilaColor("ETIQUETAS:", 140, function(c) Settings.Colors.Etiquetas = c Envi
 
 ColorPanelClose.MouseButton1Click:Connect(function() ColorPanel.Visible = false end)
 
--- [GENERADOR DE BOTONES INTERACTIVOS (CSS ASINCRONO STYLE)]
+-- [GENERADOR DE BOTONES INTERACTIVOS]
 local function InsertarBotonMenu(texto, index, colorBorde)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(0.96, 0, 0, 42)
@@ -609,10 +303,9 @@ end
 
 local BtnEscaner = InsertarBotonMenu("SISTEMA GENERAL: APAGADO", 1, Color3.fromRGB(0, 255, 150))
 local BtnModoAtaque = InsertarBotonMenu("MODO COMBATE/SEGUIMIENTO: OFF", 2, Color3.fromRGB(255, 200, 0))
--- Nuevo: Abre el subpanel interno de configuración cromática
 local BtnColorConfig = InsertarBotonMenu("CONFIGURAR COLORES SECCIÓN", 3, Color3.fromRGB(255, 255, 255))
 
--- [MANIPULACIÓN DE MINIMIZADO CON ANIMACIONES DE INTERFAZ]
+-- [MANIPULACIÓN DE MINIMIZADO CON ANIMACIONES]
 local MenuAbierto = true
 
 local function DesplegarHUD()
@@ -623,7 +316,7 @@ local function DesplegarHUD()
 end
 
 local function ColapsarHUD()
-    local Anim = TweenService:Create(MainDashboard, TweenInfo.new(0.4, Enum.EasingStyle.QuadIn), {Position = UDim2.new(0.03, 0, -1, 0)})
+    local Anim = TweenService:Create(MainDashboard, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(0.03, 0, -1, 0)})
     Anim:Play()
     MenuAbierto = false
     Anim.Completed:Connect(function()
@@ -638,7 +331,6 @@ CloseBtn.MouseButton1Click:Connect(ColapsarHUD)
 MiniBtn.MouseButton1Click:Connect(DesplegarHUD)
 BtnColorConfig.MouseButton1Click:Connect(function() ColorPanel.Visible = not ColorPanel.Visible end)
 
--- Alternar el interruptor del escáner visual básico
 BtnEscaner.MouseButton1Click:Connect(function()
     Settings.EscanerActivo = not Settings.EscanerActivo
     if Settings.EscanerActivo then
@@ -654,7 +346,6 @@ BtnEscaner.MouseButton1Click:Connect(function()
     end
 end)
 
--- Máquina de estados cíclica para los modos combinados de tracking/hit
 BtnModoAtaque.MouseButton1Click:Connect(function()
     if Settings.TargetMode == "OFF" then
         Settings.TargetMode = "FOLLOW"
@@ -670,7 +361,6 @@ BtnModoAtaque.MouseButton1Click:Connect(function()
         Settings.TargetMode = "OFF"
         BtnModoAtaque.Text = "  MODO COMBATE/SEGUIMIENTO: OFF"
         BtnModoAtaque.TextColor3 = Color3.fromRGB(255, 200, 0)
-        Settings.UltimoObjetivoNotificado = ""
         EnviarNotificacion("SISTEMA", "Motores de combate desactivados.")
     end
 end)
@@ -680,23 +370,23 @@ local function EjecutarDash()
     local Character = LocalPlayer.Character
     local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
     if RootPart then
-        -- Mueve el CFrame limpiamente respetando la dirección de la cámara
         RootPart.CFrame = RootPart.CFrame + (RootPart.CFrame.LookVector * Settings.DashDist)
         EnviarNotificacion("MECÁNICA", "Dash ejecutado (" .. tostring(Settings.DashDist) .. " Studs)", Color3.fromRGB(255, 50, 50))
     end
 end
 DashBtn.MouseButton1Click:Connect(EjecutarDash)
 
--- [MÓDULO DE RENDERIZADO DE ALTA VISIBILIDAD PARA ENTORNO (ANTI-MEZCLA)]
+-- [MÓDULO DE RENDERIZADO DE ALTA VISIBILIDAD PARA ENTORNO]
 local function InyectarGraficosPersonaje(Char, Enm)
-    if not Char:FindFirstChild("AlonshackRenderCore") then
-        local CarpetaContenedora = Instance.new("Folder")
-        CarpetaContenedora.Name = "AlonshackRenderCore"
-        CarpetaContenedora.Parent = Char
+    local Carpeta = Char:FindFirstChild("AlonshackRenderCore")
+    if not Carpeta then
+        Carpeta = Instance.new("Folder")
+        Carpeta.Name = "AlonshackRenderCore"
+        Carpeta.Parent = Char
 
         local Head = Char:FindFirstChild("Head")
-        if Head then
-            -- Adornment estructural (Hitbox visible)
+        local Root = Char:FindFirstChild("HumanoidRootPart")
+        if Head and Root then
             local CajaWireframe = Instance.new("BoxHandleAdornment")
             CajaWireframe.Name = "HitboxVisualizer"
             CajaWireframe.Size = Char:GetExtentsSize() or Vector3.new(2, 5, 2)
@@ -704,10 +394,9 @@ local function InyectarGraficosPersonaje(Char, Enm)
             CajaWireframe.AlwaysOnTop = true
             CajaWireframe.Transparency = 0.4
             CajaWireframe.ZIndex = 5
-            CajaWireframe.Adornee = Char:FindFirstChild("HumanoidRootPart") or Head
-            CajaWireframe.Parent = CarpetaContenedora
+            CajaWireframe.Adornee = Root
+            CajaWireframe.Parent = Carpeta
 
-            -- Etiqueta flotante de alta visibilidad (No se mezcla con el mapa gracias al stroke sólido)
             local BGui = Instance.new("BillboardGui")
             BGui.Name = "HighVisibilityTag"
             BGui.Size = UDim2.new(0, 180, 0, 35)
@@ -722,25 +411,90 @@ local function InyectarGraficosPersonaje(Char, Enm)
             TxtLabel.TextColor3 = Settings.Colors.Etiquetas
             TxtLabel.Font = Enum.Font.Code
             TxtLabel.TextSize = 13
-            TxtLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Contorno negro absoluto para romper camuflaje del mapa
-            TxtLabel.TextStrokeTransparency = 0 -- Opaco al 100%
+            TxtLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) 
+            TxtLabel.TextStrokeTransparency = 0 
             TxtLabel.Parent = BGui
 
-            BGui.Parent = CarpetaContenedora
+            BGui.Parent = Carpeta
         end
     else
-        -- Actualización dinámica en tiempo real por si cambian colores desde el panel interno
-        local Carpeta = Char:FindFirstChild("AlonshackRenderCore")
-        if Carpeta then
-            local Box = Carpeta:FindFirstChild("HitboxVisualizer")
-            if Box then Box.Color3 = Settings.Colors.Hitbox end
-            
-            local Tag = Carpeta:FindFirstChildOfClass("BillboardGui")
-            if Tag and Tag:FindFirstChildOfClass("TextLabel") then
-                Tag:FindFirstChildOfClass("TextLabel").TextColor3 = Settings.Colors.Etiquetas
-            end
+        local Box = Carpeta:FindFirstChild("HitboxVisualizer")
+        if Box then Box.Color3 = Settings.Colors.Hitbox end
+        
+        local Tag = Carpeta:FindFirstChild("HighVisibilityTag")
+        if Tag and Tag:FindFirstChildOfClass("TextLabel") then
+            Tag:FindFirstChildOfClass("TextLabel").TextColor3 = Settings.Colors.Etiquetas
         end
     end
+end
+
+local function DibujarLineasYDistancia(EnmChar, MiRoot, SuRoot)
+    local Carpeta = EnmChar:FindFirstChild("AlonshackRenderCore")
+    if not Carpeta then return end
+
+    local ContenedorLineas = Carpeta:FindFirstChild("LineaDistanciaFolder")
+    if not ContenedorLineas then
+        ContenedorLineas = Instance.new("Folder")
+        ContenedorLineas.Name = "LineaDistanciaFolder"
+        ContenedorLineas.Parent = Carpeta
+    end
+    ContenedorLineas:ClearAllChildren()
+
+    local p1 = MiRoot.Position
+    local p2 = SuRoot.Position
+    local ray = (p2 - p1)
+    local dist = math.floor(ray.Magnitude)
+
+    -- Renderizar nodos en la línea de trayectoria matemática (3 studs de separación)
+    local numPuntos = math.floor(dist / 3)
+    for i = 1, numPuntos do
+        local pos = p1 + (ray.Unit * (i * 3))
+        local pPart = Instance.new("Part")
+        pPart.Size = Vector3.new(0.2, 0.2, 0.2)
+        pPart.CFrame = CFrame.new(pos)
+        pPart.Anchored = true
+        pPart.CanCollide = false
+        pPart.Transparency = 1
+        pPart.Parent = ContenedorLineas
+        
+        local adorn = Instance.new("BoxHandleAdornment")
+        adorn.Size = Vector3.new(0.15, 0.15, 0.4)
+        adorn.Color3 = Settings.Colors.Distancia
+        adorn.AlwaysOnTop = true
+        adorn.Transparency = 0.3
+        adorn.ZIndex = 8
+        adorn.Adornee = pPart
+        adorn.CFrame = CFrame.lookAt(pos, p2)
+        adorn.Parent = pPart
+    end
+
+    -- Billboard flotante en el centro de la línea de distancia
+    local bGuiD = Instance.new("BillboardGui")
+    bGuiD.Name = "TagDist"
+    bGuiD.Size = UDim2.new(0, 80, 0, 20)
+    bGuiD.AlwaysOnTop = true
+    
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = tostring(dist) .. " STUDS"
+    lbl.TextColor3 = Settings.Colors.Distancia
+    lbl.Font = Enum.Font.RobotoMono
+    lbl.TextSize = 11
+    lbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    lbl.TextStrokeTransparency = 0
+    lbl.Parent = bGuiD
+    
+    local pMid = Instance.new("Part")
+    pMid.Size = Vector3.new(0.1, 0.1, 0.1)
+    pMid.CFrame = CFrame.new(p1 + (ray / 2))
+    pMid.Anchored = true
+    pMid.CanCollide = false
+    pMid.Transparency = 1
+    pMid.Parent = ContenedorLineas
+    
+    bGuiD.Adornee = pMid
+    bGuiD.Parent = ContenedorLineas
 end
 
 local function LimpiarGraficosServidor()
@@ -752,7 +506,7 @@ local function LimpiarGraficosServidor()
     end
 end
 
--- BUCLE DE REFRESCO SÍNCRONO MANDATORIO (Evita saturación de memoria y limpia desincronizaciones de tags)
+-- BUCLE DE REFRESCO SÍNCRONO MANDATORIO (Evita fugas de memoria)
 task.spawn(function()
     while true do
         task.wait(60)
@@ -762,31 +516,85 @@ task.spawn(function()
     end
 end)
 
--- [SISTEMA LOGICO CENTRAL DE INTERACCIÓN CORTA/LARGA Y ENFOQUE]
+-- [SISTEMA LÓGICO CENTRAL DE INTERACCIÓN CORTA/LARGA Y ENFOQUE]
 RunService.RenderStepped:Connect(function()
-    local MiCharacter = LocalPlayer.Character
-    local MiRoot = MiCharacter and MiCharacter:FindFirstChild("HumanoidRootPart")
-    local MiHumanoid = MiCharacter and MiCharacter:FindFirstChildOfClass("Humanoid")
+    -- Desactivar colisiones internas del personaje propio para evitar atascos físicos
+    pcall(function()
+        local myChar = LocalPlayer.Character
+        if myChar then
+            for _, v in ipairs(myChar:GetDescendants()) do
+                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                    v.CanCollide = false
+                end
+			end
+		end
+	end)
 
-    if not Settings.EscanerActivo or not MiRoot then
+    if not Settings.EscanerActivo then
         LimpiarGraficosServidor()
         return 
     end
 
+    local MiCharacter = LocalPlayer.Character
+    local MiRoot = MiCharacter and MiCharacter:FindFirstChild("HumanoidRootPart")
+    local MiHumanoid = MiCharacter and MiCharacter:FindFirstChildOfClass("Humanoid")
+
+    if not MiRoot then return end
+
     local ObjetivoActual = nil
     local DistanciaRecord = 999999
+    local EnemigoObjetivo = nil
 
-    -- Escaneo unificado de posiciones relativas
+    -- Escaneo e Inyección Gráfica General
     for _, Enemigo in ipairs(Players:GetPlayers()) do
         if Enemigo ~= LocalPlayer and Enemigo.Character then
             InyectarGraficosPersonaje(Enemigo.Character, Enemigo)
 
             local SuRoot = Enemigo.Character:FindFirstChild("HumanoidRootPart")
             if SuRoot then
+                DibujarLineasYDistancia(Enemigo.Character, MiRoot, SuRoot)
+                
                 local ModuloDistancia = (SuRoot.Position - MiRoot.Position).Magnitude
                 if ModuloDistancia < DistanciaRecord then
                     DistanciaRecord = ModuloDistancia
                     ObjetivoActual = SuRoot
+                    EnemigoObjetivo = Enemigo
                 end
             end
-     
+        end
+    end
+
+    -- Alertas de Proximidad por Radar Crítico (Cooldown de 5 segundos)
+    if ObjetivoActual and DistanciaRecord < 25 then
+        if tick() - Settings.UltimoAviso > 5 then
+            Settings.UltimoAviso = tick()
+            task.spawn(EnviarNotificacion, "PROXIMIDAD", "ENEMIGO DETECTADO: " .. EnemigoObjetivo.Name:upper(), Color3.fromRGB(255, 50, 50))
+        end
+    end
+
+    -- Máquina de Ejecución de TargetModes (FOLLOW / COMBAT)
+    if ObjetivoActual and Settings.TargetMode ~= "OFF" then
+        -- Asegurar enfoque direccional CFrame Vector Lock en el plano horizontal (Y congelado)
+        MiRoot.CFrame = CFrame.lookAt(MiRoot.Position, Vector3.new(ObjetivoActual.Position.X, MiRoot.Position.Y, ObjetivoActual.Position.Z))
+
+        if Settings.TargetMode == "COMBAT" then
+            -- Forzar aproximación cerrada si la distancia supera el umbral crítico de ataque
+            if DistanciaRecord > 4 then
+                MiRoot.CFrame = MiRoot.CFrame + (MiRoot.CFrame.LookVector * (DistanciaRecord - 3.8))
+            end
+
+            -- Manejo automático de inventario y activación de herramientas (Auto-Atacante)
+            local Tool = MiCharacter:FindFirstChildOfClass("Tool")
+            if not Tool and LocalPlayer:FindFirstChild("Backpack") then
+                local Arma = LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+                if Arma and MiHumanoid then
+                    MiHumanoid:EquipTool(Arma)
+                    Tool = Arma
+                end
+            end
+            if Tool then 
+                Tool:Activate() 
+            end
+        end
+    end
+end)
